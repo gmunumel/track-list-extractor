@@ -18,6 +18,10 @@ If you are in Windows:
 
     .\.venv\Scripts\activate
 
+If you are in Linux:
+
+    source .venv/bin/activate
+
 Then install the libraries:
 
     pip install -r requirements.txt
