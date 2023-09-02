@@ -1,60 +1,22 @@
+# pylint: disable=missing-function-docstring
 import sys
+import traceback
 import validators
 
-from requests_html import HTMLSession
+from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support import expected_conditions as EC
 
 
-def get_tracks_info(url):
-    # url = "https://www.1001tracklists.com/tracklist/1kpbmppt/hernan-cattaneo-incendia-dome-burning-man-multiverse-united-states-2021-09-01.html"
-    # url = "https://www.1001tracklists.com/tracklist/gc36679/sebastien-leger-halaszbastya-etterem-budapest-hungary-2022-10-01.html"
+def get_driver():
+    options = Options()
+    options.add_argument("--window-size=1920,1200")
+    # options.add_argument("--headless")
+    driver = webdriver.Chrome(options=options)
 
-    print(f"started for '{url}' ...")
-    session = HTMLSession()
-
-    r = session.get(url)
-
-    r.html.render()
-
-    tree = r.html
-    print("tree generated ...")
-
-    set_name = tree.xpath("/html/body/meta[1]/@content")
-    print(set_name)
-    print(set_name[0])
-    print("=" * len(set_name[0]))
-
-    number_tracks = tree.xpath('//*[@id="tlTab"]/meta[3]/@content')[0].strip()
-
-    if len(number_tracks) == 0:
-        print("Error: number of tracks empty")
-        return
-
-    # Get Tracks
-    for i in range(int(number_tracks)):
-        track_number = tree.xpath('//*[@id="tlp{}_tracknumber_value"]/text()'.format(i))
-        if len(track_number) > 0:
-            track_number = track_number[0].strip()
-
-        cue_id = tree.xpath('//div[contains(@class, "trRow{}")]/@id'.format(i + 1))
-        if len(cue_id) > 0:
-            cue_id = cue_id[0].replace("tlp_", "")
-
-        track_time = tree.xpath('//*[@id="cue_{}"]/text()'.format(cue_id))
-        if len(track_time) > 0:
-            track_time = track_time[0].strip()
-            track_time = get_time_formatted(track_time)
-
-        track_name = tree.xpath('//*[@id="tlp{}_content"]/meta[1]/@content'.format(i))
-        if len(track_name) > 0:
-            track_name = track_name[0].strip()
-            print_track(track_time, track_name, track_number)
-        else:
-            print_id(track_time, track_number)
-
-    source = tree.xpath('//meta[@itemprop="mainEntityOfPage"]/@itemid')
-    if len(source) > 0:
-        source = source[0].strip()
-        print("\n" + "Source: " + source)
+    return driver
 
 
 def print_track(track_time, track_name, track_number):
@@ -84,23 +46,90 @@ def print_id(track_time, track_number):
     print(result)
 
 
-def get_time_formatted(time):
-    if time == "":
+def get_time_formatted(ttime):
+    if ttime == "":
         return ""
     result = "["
-    times = time.split(":")
+    times = ttime.split(":")
     if len(times) == 2:
         result += "00:"
-    for time in times:
-        if len(time) == 1:
-            result += "0" + time
+    for one_t in times:
+        if len(one_t) == 1:
+            result += "0" + one_t
         else:
-            result += time
+            result += one_t
 
         result += ":"
 
     result = result[:-1]
     return result + "]"
+
+
+def process(driver):
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_all_elements_located((By.XPATH, "/html/body/meta")))
+
+    print("tree generated ...")
+
+    set_name = driver.find_elements(
+        By.XPATH, "/html/body/meta")[0].get_attribute("content")
+
+    print(set_name)
+    print("=" * len(set_name))
+
+    number_tracks = driver.find_elements(
+        By.XPATH, "//*[@id='tlTab']/meta")[2].get_attribute("content")
+
+    if len(number_tracks) == 0:
+        print("Error: number of tracks empty")
+        return
+
+    # Get Tracks
+    for i in range(int(number_tracks)):
+        track_number = driver.find_element(
+            By.XPATH, '//*[@id="tlp{}_tracknumber_value"]'.format(i)).text
+        if len(track_number) > 0:
+            track_number = track_number.strip()
+
+        cue_id = driver.find_elements(
+            By.XPATH, '//div[contains(@class, "trRow{}")]'.format(i + 1))[0].get_attribute("id")
+        if len(cue_id) > 0:
+            cue_id = cue_id.replace("tlp_", "")
+
+        track_time = driver.find_element(
+            By.XPATH, '//*[@id="cue_{}"]'.format(cue_id)).text
+        if len(track_time) > 0:
+            track_time = track_time.strip()
+            track_time = get_time_formatted(track_time)
+
+        track_name = driver.find_elements(
+            By.XPATH, '//*[@id="tlp{}_content"]/meta'.format(i))
+        if len(track_name) > 0:
+            track_name = track_name[0].get_attribute("content").strip()
+            print_track(track_time, track_name, track_number)
+        else:
+            print_id(track_time, track_number)
+
+    source = driver.find_elements(
+        By.XPATH, '//meta[@itemprop="mainEntityOfPage"]')[0].get_attribute("itemid")
+    if len(source) > 0:
+        source = source.strip()
+        print("\n" + "Source: " + source)
+
+
+def get_tracks_info(url):
+    print(f"started for '{url}' ...")
+
+    driver = get_driver()
+
+    try:
+        driver.get(url)
+
+        process(driver)
+    except Exception:
+        traceback.print_exc(file=sys.stdout)
+    finally:
+        driver.quit()
 
 
 def main():
