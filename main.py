@@ -1,7 +1,10 @@
 # pylint: disable=missing-function-docstring
+# import os
+# import subprocess
 import sys
 import traceback
 import validators
+import pyperclip
 
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
@@ -30,11 +33,14 @@ def print_track(track_time, track_name, track_number):
     if track_name != "" and len(track_name) > 0:
         result += track_name
 
-    print(result)
+    if len(result) > 0:
+        return "\n" + result
+
+    return result
 
 
 def print_id(track_time, track_number):
-    result = ""
+    result = "\n"
     if track_number != "" and len(track_number) > 0:
         result += track_number + ". "
 
@@ -43,7 +49,7 @@ def print_id(track_time, track_number):
 
     result += "ID - ID"
 
-    print(result)
+    return result
 
 
 def get_time_formatted(ttime):
@@ -66,7 +72,7 @@ def get_time_formatted(ttime):
 
 
 def process(driver):
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 20).until(
         EC.presence_of_all_elements_located((By.XPATH, "/html/body/meta")))
 
     print("tree generated ...")
@@ -74,8 +80,8 @@ def process(driver):
     set_name = driver.find_elements(
         By.XPATH, "/html/body/meta")[0].get_attribute("content")
 
-    print(set_name)
-    print("=" * len(set_name))
+    result = f"{set_name}\n"
+    result += "=" * len(set_name)
 
     number_tracks = driver.find_elements(
         By.XPATH, "//*[@id='tlTab']/meta")[2].get_attribute("content")
@@ -106,15 +112,22 @@ def process(driver):
             By.XPATH, '//*[@id="tlp{}_content"]/meta'.format(i))
         if len(track_name) > 0:
             track_name = track_name[0].get_attribute("content").strip()
-            print_track(track_time, track_name, track_number)
+            result += print_track(track_time, track_name, track_number)
         else:
-            print_id(track_time, track_number)
+            result += print_id(track_time, track_number)
 
     source = driver.find_elements(
         By.XPATH, '//meta[@itemprop="mainEntityOfPage"]')[0].get_attribute("itemid")
     if len(source) > 0:
         source = source.strip()
-        print("\n" + "Source: " + source)
+        result += "\n\n" + "Source: " + source
+
+    print(result)
+    print("\nCopying to clipboard...")
+
+    pyperclip.copy(result)
+
+    print("Copy done! ;)")
 
 
 def get_tracks_info(url):
