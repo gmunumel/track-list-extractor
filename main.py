@@ -1,6 +1,4 @@
 # pylint: disable=missing-function-docstring
-# import os
-# import subprocess
 import sys
 import traceback
 import validators
