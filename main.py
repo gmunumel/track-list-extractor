@@ -1,4 +1,8 @@
 # pylint: disable=missing-function-docstring
+# pylint: disable=broad-except
+# pylint: disable=import-error
+# pylint: disable=line-too-long
+# pylint: disable=superfluous-parens
 import sys
 import traceback
 import validators
@@ -13,14 +17,14 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def get_driver():
     options = Options()
-    options.add_argument("--window-size=1920,1200")
+    options.add_argument("--window-size=1920,1080")
     # options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
 
     return driver
 
 
-def print_track(track_time, track_name, track_number):
+def print_track(track_time, track_name, track_number, track_label):
     result = ""
     if track_number != "" and len(track_number) > 0:
         result += track_number + ". "
@@ -30,6 +34,9 @@ def print_track(track_time, track_name, track_number):
 
     if track_name != "" and len(track_name) > 0:
         result += track_name
+
+    if track_label != "" and len(track_label) > 0:
+        result += f" [{track_label}]"
 
     if len(result) > 0:
         return "\n" + result
@@ -75,47 +82,61 @@ def process(driver):
 
     print("tree generated ...")
 
-    set_name = driver.find_elements(
-        By.XPATH, "/html/body/meta")[0].get_attribute("content")
+    set_name = driver.find_element(
+        By.XPATH, "/html/body/meta").get_attribute("content")
 
     result = f"{set_name}\n"
     result += "=" * len(set_name)
 
-    number_tracks = driver.find_elements(
-        By.XPATH, "//*[@id='tlTab']/meta")[2].get_attribute("content")
+    number_tracks = driver.find_element(
+        By.XPATH, "//*[@id='tlTab']").get_attribute("data-count")
+
+    # print(result)
+    # print(number_tracks)
 
     if len(number_tracks) == 0:
         print("Error: number of tracks empty")
-        return
+        return ""
 
     # Get Tracks
     for i in range(int(number_tracks)):
         track_number = driver.find_element(
-            By.XPATH, '//*[@id="tlp{}_tracknumber_value"]'.format(i)).text
+            By.XPATH, '//div[contains(@class, "tlpItem")][{}]/div/span'.format(i+1)).text
+
         if len(track_number) > 0:
             track_number = track_number.strip()
 
-        cue_id = driver.find_elements(
-            By.XPATH, '//div[contains(@class, "trRow{}")]'.format(i + 1))[0].get_attribute("id")
-        if len(cue_id) > 0:
-            cue_id = cue_id.replace("tlp_", "")
-
         track_time = driver.find_element(
-            By.XPATH, '//*[@id="cue_{}"]'.format(cue_id)).text
+            By.XPATH, '//div[contains(@class, "tlpItem")][{}]/div/div'.format(i+1)).text
+
         if len(track_time) > 0:
             track_time = track_time.strip()
             track_time = get_time_formatted(track_time)
 
-        track_name = driver.find_elements(
-            By.XPATH, '//*[@id="tlp{}_content"]/meta'.format(i))
+        track_id = driver.find_element(
+            By.XPATH, '//div[contains(@class, "tlpItem")][{}]//div[2]/div'.format(i+1)).get_attribute("id")
+        track_id = track_id.replace("_content", "_labeldata")
+
+        if (len(driver.find_elements(By.ID, track_id)) != 0):
+            track_label = driver.find_element(By.ID, track_id).text
+        else:
+            track_label = ""
+
+        if len(track_label) > 0:
+            track_label = track_label.strip()
+
+        track_name = driver.find_element(
+            By.XPATH, '//div[contains(@class, "tlpItem")][{}]//div[2]/div/span[1]'.format(i+1)).text
+
         if len(track_name) > 0:
-            track_name = track_name[0].get_attribute("content").strip()
-            result += print_track(track_time, track_name, track_number)
+            track_name = track_name.strip()
+            result += print_track(track_time, track_name,
+                                  track_number, track_label)
         else:
             result += print_id(track_time, track_number)
 
-    source = driver.find_elements(
-        By.XPATH, '//meta[@itemprop="mainEntityOfPage"]')[0].get_attribute("itemid")
+    source = driver.find_element(
+        By.XPATH, '//meta[@itemprop="mainEntityOfPage"]').get_attribute("itemid")
     if len(source) > 0:
         source = source.strip()
         result += "\n\n" + "Source: " + source
@@ -127,20 +148,25 @@ def process(driver):
 
     print("Copy done! ;)")
 
+    return result
+
 
 def get_tracks_info(url):
     print(f"started for '{url}' ...")
 
     driver = get_driver()
+    tracks = ""
 
     try:
         driver.get(url)
 
-        process(driver)
+        tracks = process(driver)
     except Exception:
         traceback.print_exc(file=sys.stdout)
     finally:
         driver.quit()
+
+    return tracks
 
 
 def main():
