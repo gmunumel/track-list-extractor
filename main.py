@@ -101,20 +101,20 @@ def process(driver):
     # Get Tracks
     for i in range(int(number_tracks)):
         track_number = driver.find_element(
-            By.XPATH, '//div[contains(@class, "tlpItem")][{}]/div/span'.format(i+1)).text
+            By.XPATH, '//div[contains(@class, "tlpItem")][{}]//div[contains(@class, "bPlay")][1]/span'.format(i+1)).text
 
         if len(track_number) > 0:
             track_number = track_number.strip()
 
         track_time = driver.find_element(
-            By.XPATH, '//div[contains(@class, "tlpItem")][{}]/div/div'.format(i+1)).text
+            By.XPATH, '//div[contains(@class, "tlpItem")][{}]//div[contains(@class, "bPlay")][1]/div'.format(i+1)).text
 
         if len(track_time) > 0:
             track_time = track_time.strip()
             track_time = get_time_formatted(track_time)
 
         track_id = driver.find_element(
-            By.XPATH, '//div[contains(@class, "tlpItem")][{}]//div[2]/div'.format(i+1)).get_attribute("id")
+            By.XPATH, '//div[contains(@class, "tlpItem")][{}]//div[contains(@class, "bCont")][1]/div'.format(i+1)).get_attribute("id")
         track_id = track_id.replace("_content", "_labeldata")
 
         if (len(driver.find_elements(By.ID, track_id)) != 0):
@@ -126,7 +126,7 @@ def process(driver):
             track_label = track_label.strip()
 
         track_name = driver.find_element(
-            By.XPATH, '//div[contains(@class, "tlpItem")][{}]//div[2]/div/span[1]'.format(i+1)).text
+            By.XPATH, '//div[contains(@class, "tlpItem")][{}]//div[contains(@class, "bCont")][1]/div/span[1]'.format(i+1)).text
 
         if len(track_name) > 0:
             track_name = track_name.strip()
