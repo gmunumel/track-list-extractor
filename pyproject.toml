@@ -1,0 +1,39 @@
+[project]
+authors = [
+    {name = "Gabriel Munumel"}
+]
+description = "This project offers a REST API to get parsed tracklist from tracklist1001 website"
+name = "track-list-extractor"
+readme = "README.md"
+requires-python = ">=3.11"
+version = "1.0.0"
+
+[project.urls]
+Homepage = "https://github.com/gmunumel/track-list-extractor"
+
+[tool.coverage.run]
+branch = true
+data_file = ".coverage/coverage-data"
+source = ["src"]
+
+[tool.coverage.xml]
+output = ".coverage/coverage.xml"
+
+[tool.coverage.html]
+directory = ".coverage/coverage-html"
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:"
+]
+
+[tool.pytest.ini_options]
+pythonpath = [
+    ".",
+    "src"
+]
+testpaths = [
+    "tests"
+]
