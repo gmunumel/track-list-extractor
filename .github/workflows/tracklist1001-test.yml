@@ -1,0 +1,34 @@
+# name: tracklist1001-test
+
+# on:
+#   workflow_dispatch:
+#   schedule:
+#     - cron: "0 1 * * *"
+#   push:
+#     branches:
+#       - feat/github-actions**
+
+# permissions:
+#   id-token: write
+#   contents: read
+
+# concurrency:
+#   group: deploy-prod-stack
+
+# jobs:
+#   tracklist1001-test:
+#     runs-on: ubuntu-latest
+#     env:
+#       AWS_REGION: eu-central-1
+#     steps:
+#       - uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-region: ${{ env.AWS_REGION }}
+#           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+#       - name: Tracklist1001 README's instructions
+#         run: |
+#           npm install -g serverless@^3
+#           sls create --template-url "https://github.com/umihico/docker-selenium-lambda/tree/main" --path docker-selenium-lambda && cd $_
+#           sls deploy
+#           sls invoke --function tracklist1001 --data '{"url": "https://www.1001tracklists.com/tracklist/1f00ch3k/sebastien-leger-the-moment-presents-exceptional-trips-gocek-turkey-mixmag-2021-07-04.html"}' |& tee /tmp/scraping-result.txt
+#           cat /tmp/scraping-result.txt | grep -q "Sébastien Léger @ The Moment Presents: Exceptional Trips, Göcek, Turkey (Mixmag) 2021-07-04"
