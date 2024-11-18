@@ -1,21 +1,10 @@
-"""
-This module contains the Faker class used for generating fake session data for testing.
-"""
-
 from src.domain.session import Session
 from src.domain.track import Track
 
 
 class Faker:
-    """
-    Faker class for generating fake session data for testing.
-    """
-
     @property
     def foo_session(self) -> Session:
-        """
-        The foo_session property returns a fake session object for testing purposes.
-        """
         return Session(
             tracks=[
                 Track(

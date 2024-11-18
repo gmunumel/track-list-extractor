@@ -1,4 +1,3 @@
-# pylint: disable=missing-function-docstring
 """
 Unit tests for the Track class.
 """

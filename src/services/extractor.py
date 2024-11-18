@@ -1,51 +1,32 @@
-"""
-This module contains the Extractor class which is used to extract
-track information from a given URL using a web driver.
-"""
+import validators
+import urllib.parse
 
 from typing import Any
-import validators
-
-from src.services.webdriver import WebDriver
-from src.domain.session import Session
-from src.domain.track import Track
-from src.exceptions import ValidationError
+from services.webdriver import WebDriver
+from domain.session import Session
+from domain.track import Track
+from exceptions import ValidationError
 
 TRACKLISTS_URL = "https://www.1001tracklists.com"
 
 
 class Extractor:
-    """
-    Extractor class to extract track information from a given URL using a web driver.
-    """
-
     def __init__(self, web_driver: WebDriver):
         self.web_driver = web_driver
 
     def extract(self, request_json) -> dict[str, Any]:
-        """
-        Extract information from the given URL.
-
-        Args:
-            request_json (any): Provided the payload of the request.
-
-        Returns:
-            dict: A dictionary containing the extracted information.
-        """
         return self._extract_info(request_json)
 
     def _extract_info(self, request_json) -> dict[str, Any]:
         url = self._validate_payload(request_json)
         return self._process(url)
 
-    def _validate_payload(self, request_json):
-        if "url" not in request_json:
-            raise ValidationError("Invalid payload", 400)
-        url = request_json["url"]
+    def _validate_payload(self, url):
+        url = urllib.parse.unquote(url)
         if not validators.url(url):
-            raise ValidationError("Invalid url format", 400)
+            raise ValidationError("Invalid url format")
         if TRACKLISTS_URL not in url:
-            raise ValidationError(f"Not a {TRACKLISTS_URL} url", 400)
+            raise ValidationError(f"Not a {TRACKLISTS_URL} url")
         return url
 
     def _process(self, url) -> dict[str, Any]:
