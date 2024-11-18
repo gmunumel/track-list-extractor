@@ -1,6 +1,6 @@
 org: gminc
-app: docker-selenium-lambda
-service: docker-selenium-lambda
+app: docker-selenium-lambda-tracklist1001
+service: docker-selenium-lambda-tracklist1001
 
 provider:
   name: aws

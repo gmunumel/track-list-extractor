@@ -28,14 +28,14 @@ Then install the libraries:
 
 Verify that you are running Python pipenv from VScode main.py file.
 
-## Running the demo
+## Running the tracklist1001
 
 ```bash
 $ npm install -g serverless@^3 # skip this line if you have already installed Serverless Framework
 $ export AWS_REGION=eu-central-1 # You can specify region or skip this line. us-east-1 will be used by default.
-$ sls create --template-url "https://github.com/gmunumel/docker-selenium-lambda/tree/main" --path docker-selenium-lambda && cd $_
+$ sls create --template-url "https://github.com/gmunumel/track-list-extractor/tree/main" --path docker-selenium-lambda-tracklist1001 && cd $_
 $ sls deploy
-$ sls invoke --function demo # Yay! You will get texts of example.com
+$ sls invoke --function tracklist1001 --data '{"url": "https://www.1001tracklists.com/tracklist/1f00ch3k/sebastien-leger-the-moment-presents-exceptional-trips-gocek-turkey-mixmag-2021-07-04.html"}' # Done
 ```
 
 ## Result
@@ -51,7 +51,6 @@ Running the app:
 ```
 python src/tracklist.py
 ```
-
 
 Produces the output similar to this:
 
