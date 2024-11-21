@@ -13,5 +13,5 @@ RUN dnf install -y atk cups-libs gtk3 libXcomposite alsa-lib \
 RUN pip install selenium==4.26.1
 COPY --from=build /opt/chrome-linux64 /opt/chrome
 COPY --from=build /opt/chromedriver-linux64 /opt/
-COPY main.py ./
+COPY src/ ./src/
 CMD [ "src.tracklist.handler" ]
