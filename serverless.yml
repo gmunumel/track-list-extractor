@@ -1,4 +1,4 @@
-org: gminc
+org: gm-inc
 app: docker-selenium-lambda-tracklist1001
 service: docker-selenium-lambda-tracklist1001
 

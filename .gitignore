@@ -10,3 +10,4 @@ __pycache__
 build
 .env
 docker-selenium-lambda-tracklist1001
+track_list_extractor.egg-info

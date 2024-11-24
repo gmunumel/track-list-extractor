@@ -1,20 +1,25 @@
-from services.extractor import Extractor, TRACKLISTS_URL
-from services.webdriver import WebDriver
+import logging
+
+from src.services.extractor import Extractor
+from src.services.webdriver import WebDriver
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] (tracklist) %(message)s",
+    datefmt="%d %b %Y %H:%M:%S",
+)
 
 
 def handler(event=None, context=None):
+    logging.info("Handler function invoked")
     session = None
     try:
         url = event.get("url", None)
+        logging.info(f"URL received: {url}")
         extractor = Extractor(WebDriver())
         session = extractor.extract(url)
+        logging.info("Extraction successful")
     except Exception as e:
+        logging.error(f"Error occurred: {str(e)}")
         return {"error": str(e)}
     return {"session": session}
-
-
-if __name__ == "__main__":
-    event = {
-        "url": f"{TRACKLISTS_URL}/tracklist/1f00ch3k/sebastien-leger-the-moment-presents-exceptional-trips-gocek-turkey-mixmag-2021-07-04.html"
-    }
-    print(handler(event))

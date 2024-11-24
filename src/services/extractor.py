@@ -2,10 +2,11 @@ import validators
 import urllib.parse
 
 from typing import Any
-from services.webdriver import WebDriver
-from domain.session import Session
-from domain.track import Track
-from exceptions import ValidationError
+
+from src.services.webdriver import WebDriver
+from src.domain.session import Session
+from src.domain.track import Track
+from src.exceptions import ValidationError
 
 TRACKLISTS_URL = "https://www.1001tracklists.com"
 

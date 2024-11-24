@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field, fields
 from typing import List, Any
 
-from domain.track import Track
+from src.domain.track import Track
 
 PRETTY_PRINT = "pretty_print"
 TRACKS = "tracks"

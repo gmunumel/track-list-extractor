@@ -28,7 +28,41 @@ Then install the libraries:
 
 Verify that you are running Python pipenv from VScode main.py file.
 
-## Running the tracklist1001
+## Using Docker
+
+### Build the application (_remove cache_)
+
+```bash
+docker build --pull --no-cache -t track-list-extractor .
+```
+
+### Run the application
+
+```bash
+docker rm track-list-extractor && docker run --name track-list-extractor -p 9000:8080 track-list-extractor
+```
+
+### Build and run together
+
+```bash
+docker build --pull --no-cache -t track-list-extractor . && docker rm track-list-extractor && docker run --name track-list-extractor -p 9000:8080 track-list-extractor
+```
+
+### Use the application
+
+```bash
+curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+```
+
+### Open container file system
+
+```bash
+docker exec -it track-list-extractor /bin/bash
+```
+
+## Using Serverless (`sls`)
+
+### Deploying the application
 
 ```bash
 $ npm install -g serverless@^3 # skip this line if you have already installed Serverless Framework

@@ -33,6 +33,7 @@ def test_tracklist_not_tracklists_url(mock_web_driver):
     assert response == {"error": f"Not a {TRACKLISTS_URL} url"}
 
 
+@pytest.mark.skip(reason="e2e test")
 def test_tracklist_success():
     event = {
         "url": f"{TRACKLISTS_URL}/tracklist/1f00ch3k/sebastien-leger-the-moment-presents-exceptional-trips-gocek-turkey-mixmag-2021-07-04.html"
