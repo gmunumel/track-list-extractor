@@ -1,4 +1,4 @@
-from src.tracklist import handler
+from tracklist1001 import handler
 from src.services.extractor import TRACKLISTS_URL
 
 if __name__ == "__main__":

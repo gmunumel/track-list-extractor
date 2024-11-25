@@ -74,16 +74,10 @@ $ sls invoke --function tracklist1001 --data '{"url": "https://www.1001tracklist
 
 ## Result
 
-For example for the url:
-
-```
-https://www.1001tracklists.com/tracklist/1f00ch3k/sebastien-leger-the-moment-presents-exceptional-trips-gocek-turkey-mixmag-2021-07-04.html
-```
-
 Running the app:
 
 ```
-python src/tracklist.py
+python run.py
 ```
 
 Produces the output similar to this:
