@@ -51,7 +51,7 @@ docker build --pull --no-cache -t track-list-extractor . && docker rm track-list
 ### Use the application
 
 ```bash
-curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"url": "https://www.1001tracklists.com/tracklist/1f00ch3k/sebastien-leger-the-moment-presents-exceptional-trips-gocek-turkey-mixmag-2021-07-04.html"}'
 ```
 
 ### Open container file system
