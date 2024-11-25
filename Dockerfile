@@ -18,4 +18,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY --from=build /opt/chrome-linux64 /opt/chrome
 COPY --from=build /opt/chromedriver-linux64 /opt/chromedriver
 
-CMD ["src.tracklist.handler"]
+CMD ["src.tracklist1001.handler"]
