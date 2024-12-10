@@ -1,6 +1,6 @@
 # Track List Extractor
 
-This is a small project to extrach track information from https://www.1001tracklists.com/. You only need to provide the url.
+This is a small project to extract track information from https://www.1001tracklists.com/. You only need to provide the url.
 
 ## Install Dependencies
 
@@ -26,14 +26,25 @@ Then install the libraries:
 
     pip install -r requirements.txt
 
-Verify that you are running Python pipenv from VScode main.py file.
-
 ## Using Docker
 
 ### Build the application (_remove cache_)
 
 ```bash
 docker build --pull --no-cache -t track-list-extractor .
+```
+
+Or using `buildx`:
+
+```bash
+docker buildx create --use
+docker buildx build --pull --no-cache --load -t track-list-extractor .
+```
+
+Using cached build version:
+
+```bash
+docker buildx build --load -t track-list-extractor .
 ```
 
 ### Run the application
