@@ -78,7 +78,7 @@ docker exec -it track-list-extractor /bin/bash
 ```bash
 $ npm install -g serverless@^3 # skip this line if you have already installed Serverless Framework
 $ export AWS_REGION=eu-central-1 # You can specify region or skip this line. us-east-1 will be used by default.
-$ sls create --template-url "https://github.com/gmunumel/track-list-extractor/tree/main" --path docker-selenium-lambda-tracklist1001 && cd $_
+$ serverless # to create a new serverless project
 $ sls deploy
 $ sls invoke --function tracklist1001 --data '{"url": "https://www.1001tracklists.com/tracklist/1f00ch3k/sebastien-leger-the-moment-presents-exceptional-trips-gocek-turkey-mixmag-2021-07-04.html"}' # Done
 ```

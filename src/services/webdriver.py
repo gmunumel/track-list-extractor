@@ -10,7 +10,7 @@ from tempfile import mkdtemp
 class WebDriver:
     def __init__(self):
         options = Options()
-        options.binary_location = "/opt/chrome/chrome"
+        options.binary_location = "/tmp/chrome/chrome"
 
         options.add_argument("start-maximized")
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -32,7 +32,7 @@ class WebDriver:
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-dev-tools")
 
-        service = webdriver.ChromeService("/opt/chromedriver/chromedriver")
+        service = webdriver.ChromeService("/tmp/chromedriver/chromedriver")
 
         self.web_driver = webdriver.Chrome(options=options, service=service)
 
