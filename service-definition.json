@@ -1,0 +1,14 @@
+{
+  "cluster": "track-list-extractor-cluster",
+  "serviceName": "track-list-extractor-service",
+  "taskDefinition": "track-list-extractor-task",
+  "desiredCount": 1,
+  "launchType": "FARGATE",
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "subnets": ["subnet-049e98a1cc1a77dbd"],
+      "securityGroups": ["sg-068343f9f8caebbf6"],
+      "assignPublicIp": "ENABLED"
+    }
+  }
+}

@@ -1,45 +1,61 @@
 import pytest
+import posixpath
 
-from tracklist1001 import handler
+from src.config import get_tracklist_v1_url
 from src.services.extractor import TRACKLISTS_URL
 
 
-SRC_TRACKLIST_WEB_DRIVER = "src.tracklist.WebDriver"
+TRACKLIST_V1_URL = get_tracklist_v1_url()
+SRC_API_V1_TRACKLIST_WEB_DRIVER = "src.api.v1.tracklist.WebDriver"
 
 
 @pytest.fixture()
 def mock_web_driver(mocker):
-    mocker.patch(SRC_TRACKLIST_WEB_DRIVER, return_value=None)
+    mocker.patch(SRC_API_V1_TRACKLIST_WEB_DRIVER, return_value=None)
 
 
-def test_tracklist_generic_error(mocker):
-    mocker.patch(SRC_TRACKLIST_WEB_DRIVER, side_effect=Exception("Generic error"))
+def test_tracklist_method_not_allowed(client):
+    response = client.get(TRACKLIST_V1_URL)
+    assert response.status_code == 405
+    assert response.json == {"error": "Method not allowed"}
+
+
+def test_tracklist_resource_not_found(client):
+    response = client.post(posixpath.join("/", "foo"))
+    assert response.status_code == 404
+    assert response.json == {"error": "Resource not found"}
+
+
+def test_tracklist_generic_error(mocker, client):
+    mocker.patch(
+        SRC_API_V1_TRACKLIST_WEB_DRIVER, side_effect=Exception("Generic error")
+    )
     event = {
         "url": f"{TRACKLISTS_URL}/tracklist/1f00ch3k/sebastien-leger-the-moment-presents-exceptional-trips-gocek-turkey-mixmag-2021-07-04.html"
     }
-    response = handler(event)
-    assert response == {"error": "Generic error"}
+    response = client.post(TRACKLIST_V1_URL, json=event)
+    assert response.json == {"error": "Generic error"}
 
 
-def test_tracklist_invalid_url_format(mock_web_driver):
+def test_tracklist_invalid_url_format(client, mock_web_driver):
     event = {"url": "foo"}
-    response = handler(event)
-    assert response == {"error": "Invalid url format"}
+    response = client.post(TRACKLIST_V1_URL, json=event)
+    assert response.json == {"error": "Invalid url format"}
 
 
-def test_tracklist_not_tracklists_url(mock_web_driver):
+def test_tracklist_not_tracklists_url(client, mock_web_driver):
     event = {"url": "https://www.google.com"}
-    response = handler(event)
-    assert response == {"error": f"Not a {TRACKLISTS_URL} url"}
+    response = client.post(TRACKLIST_V1_URL, json=event)
+    assert response.json == {"error": f"Not a {TRACKLISTS_URL} url"}
 
 
 @pytest.mark.skip(reason="e2e test")
-def test_tracklist_success():
+def test_tracklist_success(client):
     event = {
         "url": f"{TRACKLISTS_URL}/tracklist/1f00ch3k/sebastien-leger-the-moment-presents-exceptional-trips-gocek-turkey-mixmag-2021-07-04.html"
     }
-    response = handler(event)
-    assert response == {
+    response = client.post(TRACKLIST_V1_URL, json=event)
+    assert response.json == {
         "session": {
             "name": "Sébastien Léger @ The Moment Presents: Exceptional Trips, Göcek, Turkey (Mixmag) 2021-07-04",
             "pretty_print": "Sébastien Léger @ The Moment Presents: Exceptional Trips, Göcek, Turkey (Mixmag) 2021-07-04\n===========================================================================================\n01. Budakid - Astray In Woodland\n02. [00:05:00] Sébastien Léger - Son Of Sun [ALL DAY I DREAM]\n03. [00:11:45] Shai T - One Night In Paris [LOST MIRACLE]\n04. [00:17:30] Simone Vitullo & Tanit - Priroda (Greg Ochman Remix) [GO DEEVA]\n05. [00:23:00] Sébastien Léger - Regina Blue [ALL DAY I DREAM]\n06. [00:29:00] Sébastien Léger - Lava [ALL DAY I DREAM]\n07. [00:35:00] Sébastien Léger - Feel [ALL DAY I DREAM]\n08. [00:42:00] Eli Nissan - Lyla [LOST MIRACLE]\n09. [00:48:00] Raw Main - Sacré Coeur [LOST MIRACLE]\n10. [00:54:00] Cypherpunx ft. Sian Evans - Alien (Sébastien Léger Remix) [RENAISSANCE]\n11. [01:02:00] Eli Nissan - Casablanca [LOST MIRACLE]\n12. [01:08:00] Roy Rosenfeld - Force Major [LOST & FOUND]\n13. [01:14:00] Roy Rosenfeld - Tuti [LOST MIRACLE]\n14. [01:19:30] Ólafur Arnalds - Saman (Sébastien Léger Remix)\n\n Source: https://www.1001tracklists.com/tracklist/1f00ch3k/sebastien-leger-the-moment-presents-exceptional-trips-gocek-turkey-mixmag-2021-07-04.html",

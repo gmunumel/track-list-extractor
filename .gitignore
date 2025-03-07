@@ -12,3 +12,4 @@ build
 docker-selenium-lambda-tracklist1001
 track_list_extractor.egg-info
 .serverless
+Dockerfile*

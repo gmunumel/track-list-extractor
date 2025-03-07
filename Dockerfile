@@ -1,32 +1,71 @@
-FROM public.ecr.aws/lambda/python@sha256:4835868c64d5be2b2196850ae892a6c40899a63bb9d0e87073aa21cc8654d8a9 AS build
-RUN dnf install -y unzip && \
-    curl -Lo "/tmp/chromedriver-linux64.zip" "https://storage.googleapis.com/chrome-for-testing-public/131.0.6778.69/linux64/chromedriver-linux64.zip" && \
-    curl -Lo "/tmp/chrome-linux64.zip" "https://storage.googleapis.com/chrome-for-testing-public/131.0.6778.69/linux64/chrome-linux64.zip" && \
-    unzip /tmp/chromedriver-linux64.zip -d /tmp/ && \
-    unzip /tmp/chrome-linux64.zip -d /tmp/
+# Use Ubuntu 20.04 as the base image
+FROM ubuntu:20.04
 
-FROM public.ecr.aws/lambda/python@sha256:4835868c64d5be2b2196850ae892a6c40899a63bb9d0e87073aa21cc8654d8a9
+# Set environment variables to avoid interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
 
-COPY pyproject.toml run.py entrypoint.sh requirements.txt ${LAMBDA_TASK_ROOT}/
-COPY src/ ${LAMBDA_TASK_ROOT}/src/
+# Update and install necessary packages
+RUN apt-get update && apt-get install -y \
+    cmake \
+    curl \
+    #fluxbox \
+    g++ \
+    gnupg2 \
+    libasound2 \
+    libcurl4-openssl-dev \
+    libgbm1 \
+    libgconf-2-4 \
+    libgtk-3-0 \
+    libnss3 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxinerama1 \
+    libxkbcommon-x11-0 \
+    libxkbcommon0 \
+    libxrandr2 \
+    libxss1 \
+    libxtst6 \
+    make \
+    python3-pip \
+    python3.8 \
+    unzip \
+    #wmctrl \
+    xvfb \
+    && apt-get clean
 
-RUN chmod +x ${LAMBDA_TASK_ROOT}/entrypoint.sh
+# Install Chrome and Chromedriver
+RUN curl -Lo "/tmp/chromedriver-linux64.zip" "https://storage.googleapis.com/chrome-for-testing-public/131.0.6778.108/linux64/chromedriver-linux64.zip" && \
+    curl -Lo "/tmp/chrome-linux64.zip" "https://storage.googleapis.com/chrome-for-testing-public/131.0.6778.108/linux64/chrome-linux64.zip" && \
+    unzip /tmp/chromedriver-linux64.zip -d /opt/ && \
+    unzip /tmp/chrome-linux64.zip -d /opt/ && \
+    mv /opt/chrome-linux64 /opt/chrome && \
+    mv /opt/chromedriver-linux64 /opt/chromedriver
 
-ENV DISPLAY=:99
+# Set the working directory
+WORKDIR /src
 
-RUN dnf install -y atk cups-libs gtk3 libXcomposite alsa-lib \
-    libXcursor libXdamage libXext libXi libXrandr libXScrnSaver \
-    libXtst pango at-spi2-atk libXt xorg-x11-server-Xvfb \
-    xorg-x11-xauth dbus-glib dbus-glib-devel nss mesa-libgbm \
-    xorg-x11-utils
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python packages
+COPY requirements.txt ./
+RUN python3.8 -m pip install --no-cache-dir -r requirements.txt
 
-COPY --from=build /tmp/chrome-linux64 /tmp/chrome
-COPY --from=build /tmp/chromedriver-linux64 /tmp/chromedriver
+# Copy the function code
+COPY pyproject.toml pyproject.toml run.py gunicorn_logging.conf ./
+COPY src/ ./src/
 
+EXPOSE 5000
 
-CMD [ "src.tracklist1001.handler" ]
+# Set the entrypoint to the run.py script
+#ENTRYPOINT ["python3.8", "src/run.py"]
+#ENTRYPOINT ["gunicorn", "-b", "0.0.0.0:5000", "--pythonpath=./src", "--worker-class=gthread", "--threads=4", "--timeout=30", "--log-level=debug", "--log-config=gunicorn_logging.conf", "run:app"]
 
-ENTRYPOINT [ "/var/task/entrypoint.sh" ]
+# Start Xvfb before running the application
+#CMD ["&", "Xvfb", ":99", "-screen", "0", "1024x768x16", "&", "export", "DISPLAY=:99", "&&", "python3.8", "run.py"]
 
+# Copy the entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
+# Set the entrypoint to the entrypoint.sh script
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "--pythonpath=./", "--worker-class=gthread", "--threads=4", "--timeout=30", "--log-level=debug", "--log-config=gunicorn_logging.conf", "run:app"]

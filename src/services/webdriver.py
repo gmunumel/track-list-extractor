@@ -6,18 +6,22 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium_stealth import stealth
 from tempfile import mkdtemp
 
+from src.log import log_info
+
 
 class WebDriver:
     def __init__(self):
-        options = Options()
-        options.binary_location = "/tmp/chrome/chrome"
+        log_info("Web Driver loading")
 
-        options.add_argument("start-maximized")
+        options = Options()
+        options.binary_location = "/opt/chrome/chrome"
+
+        # options.add_argument("start-maximized")
+        options.add_argument("--headless=new")
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option("useAutomationExtension", False)
 
-        #options.add_argument("--headless")
-        # options.add_argument("--window-size=1280x1696")
+        options.add_argument("--window-size=1280x1696")
         options.add_argument("--no-sandbox")
         options.add_argument("--no-zygote")
         options.add_argument(f"--user-data-dir={mkdtemp()}")
@@ -32,7 +36,7 @@ class WebDriver:
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-dev-tools")
 
-        service = webdriver.ChromeService("/tmp/chromedriver/chromedriver")
+        service = webdriver.ChromeService("/opt/chromedriver/chromedriver")
 
         self.web_driver = webdriver.Chrome(options=options, service=service)
 
@@ -45,6 +49,11 @@ class WebDriver:
             renderer="Intel Iris OpenGL Engine",
             fix_hairline=True,
         )
+
+        log_info("Web Driver loaded")
+
+    def page_source(self):
+        return self.web_driver.page_source
 
     def get(self, url: str):
         self.web_driver.get(url)

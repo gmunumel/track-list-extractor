@@ -1,12 +1,14 @@
 import validators
 import urllib.parse
 
-from typing import Any
+# from typing import Any
 
 from src.services.webdriver import WebDriver
 from src.domain.session import Session
 from src.domain.track import Track
 from src.exceptions import ValidationError
+
+from src.log import log_info
 
 TRACKLISTS_URL = "https://www.1001tracklists.com"
 
@@ -15,25 +17,32 @@ class Extractor:
     def __init__(self, web_driver: WebDriver):
         self.web_driver = web_driver
 
-    def extract(self, request_json) -> dict[str, Any]:
-        return self._extract_info(request_json)
+    def extract(self, url):
+        # url = "https://google.com"
+        # self.web_driver.get(url)
+        # return self.web_driver.page_source()
+        log_info(f"Starting extraction for {url}")
+        return self._extract_info(url)
 
-    def _extract_info(self, request_json) -> dict[str, Any]:
-        url = self._validate_payload(request_json)
+    def _extract_info(self, url):
+        url = self._validate_payload(url)
         return self._process(url)
 
     def _validate_payload(self, url):
         url = urllib.parse.unquote(url)
         if not validators.url(url):
-            raise ValidationError("Invalid url format")
+            raise ValidationError("Invalid url format", 400)
         if TRACKLISTS_URL not in url:
-            raise ValidationError(f"Not a {TRACKLISTS_URL} url")
+            raise ValidationError(f"Not a {TRACKLISTS_URL} url", 400)
         return url
 
-    def _process(self, url) -> dict[str, Any]:
+    def _process(self, url):
         self.web_driver.get(url)
+        log_info(f"Web driver get url {url}")
         self._bypass_cookies()
+        log_info("Bypassed cookies")
         session = self._process_tracks()
+        log_info("Tracks processed")
         self.web_driver.quit()
         return session
 

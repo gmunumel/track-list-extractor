@@ -1,11 +1,14 @@
 #!/bin/bash
 
-Xvfb $DISPLAY -nolisten inet6 -nolisten tcp -nolisten unix -screen 0 1920x1280x24 +extension RANDR >/dev/null 2>&1 &
+# Start Xvfb
+Xvfb :99 -screen 0 1024x768x16 &
 
-for i in 1 2 3 4 5; do xdpyinfo -display $DISPLAY >/dev/null 2>&1 && break || sleep '1s'; done
+# Export the DISPLAY environment variable
+export DISPLAY=:99
 
-xdpyinfo -display $DISPLAY >/dev/null 2>&1 && echo 'In use' || echo 'Free'
+# Start fluxbox
+#fluxbox &
 
-# echo "here"
-
-/lambda-entrypoint.sh "$1"
+# Run the application
+#exec python3.8 run.py
+exec $@

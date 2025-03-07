@@ -41,7 +41,7 @@ class Session:
 
         return session_json
 
-    def _get_value(self, attribute: str) -> dict[str, Any]:
+    def _get_value(self, attribute):
         value = getattr(self, attribute)
         if attribute == PRETTY_PRINT:
             value = self.get_pretty_print()

@@ -79,7 +79,7 @@ class Track:
             track_json.update(self._get_value(attribute))
         return track_json
 
-    def _get_value(self, attribute: str) -> dict[str, Any]:
+    def _get_value(self, attribute):
         value = getattr(self, attribute, None)
         if value is None or value == "":
             return {}
