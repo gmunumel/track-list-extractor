@@ -58,9 +58,6 @@ EXPOSE 5000
 #ENTRYPOINT ["python3.8", "src/run.py"]
 #ENTRYPOINT ["gunicorn", "-b", "0.0.0.0:5000", "--pythonpath=./src", "--worker-class=gthread", "--threads=4", "--timeout=30", "--log-level=debug", "--log-config=gunicorn_logging.conf", "run:app"]
 
-# Start Xvfb before running the application
-#CMD ["&", "Xvfb", ":99", "-screen", "0", "1024x768x16", "&", "export", "DISPLAY=:99", "&&", "python3.8", "run.py"]
-
 # Copy the entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
