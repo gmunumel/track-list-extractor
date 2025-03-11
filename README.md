@@ -1,4 +1,6 @@
-# Track List Extractor
+![Test Status](https://github.com/gmunumel/track-list-extractor/actions/workflows/python-tests.yml/badge.svg)
+
+# track-list-extractor
 
 This is a small project to extract track information from https://www.1001tracklists.com/. You only need to provide the url.
 
